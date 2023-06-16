@@ -19,7 +19,7 @@ end
 ```
 defmodule MyClient do
   use Tesla
-  plug #{inspect(__MODULE__)}
+  plug ProxyEnv
 end
 ```
 
