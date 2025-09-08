@@ -35,6 +35,7 @@ defmodule ProxyEnv.MixProject do
       {:tesla, "~> 1.0"},
       {:hackney, "~> 1.6", only: :test},
       {:mint, "~> 1.0", only: :test},
+      {:finch, "~> 0.16", only: :test},
       {:castore, "~> 1.0", only: :test},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]

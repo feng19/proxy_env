@@ -114,7 +114,7 @@ defmodule ProxyEnv do
     proxy_env()
   end
 
-  defp proxy_env do
+  def proxy_env do
     if proxy_env = :persistent_term.get({__MODULE__, :proxy_env}, nil) do
       proxy_env
     else
@@ -140,6 +140,16 @@ defmodule ProxyEnv do
       :persistent_term.put({__MODULE__, :proxy_env}, proxy_env)
       proxy_env
     end
+  end
+
+  def http_proxy do
+    {http_proxy, _, no_proxy, auth, _} = proxy_env()
+    {http_proxy, no_proxy, auth}
+  end
+
+  def https_proxy do
+    {_, https_proxy, no_proxy, _, auth} = proxy_env()
+    {https_proxy, no_proxy, auth}
   end
 
   defp no_proxy_list(nil), do: []

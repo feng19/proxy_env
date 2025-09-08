@@ -1,34 +1,28 @@
 defmodule ProxyEnvTest do
   use ExUnit.Case
 
-  @test_url "https://www.google.com"
-
-  defmodule Httpc do
-    use Tesla
-    plug ProxyEnv
-  end
+  @test_url "https://www.youtube.com"
 
   test "httpc" do
-    assert {:ok, %{status: 200}} = Httpc.get(@test_url)
-  end
-
-  defmodule Mint do
-    use Tesla
-    adapter Tesla.Adapter.Mint
-    plug ProxyEnv, :mint
+    client = Tesla.client([{ProxyEnv, :httpc}])
+    assert {:ok, %{status: 200}} = Tesla.get(client, @test_url)
   end
 
   test "mint" do
-    assert {:ok, %{status: 200}} = Mint.get(@test_url)
-  end
-
-  defmodule Hackney do
-    use Tesla
-    adapter Tesla.Adapter.Hackney
-    plug ProxyEnv, :hackney
+    client = Tesla.client([{ProxyEnv, :mint}], Tesla.Adapter.Mint)
+    assert {:ok, %{status: 200}} = Tesla.get(client, @test_url)
   end
 
   test "hackney" do
-    assert {:ok, %{status: 200}} = Hackney.get(@test_url)
+    client = Tesla.client([{ProxyEnv, :hackney}], Tesla.Adapter.Hackney)
+    assert {:ok, %{status: 200}} = Tesla.get(client, @test_url)
+  end
+
+  test "finch" do
+    {%{host: host, port: port}, _, _} = ProxyEnv.http_proxy()
+    opts = [conn_opts: [proxy: {:http, host, port, []}]]
+    {:ok, _} = Finch.start_link(name: Test.Finch, pools: %{default: opts})
+    client = Tesla.client([], {Tesla.Adapter.Finch, name: Test.Finch})
+    assert {:ok, %{status: 200}} = Tesla.get(client, @test_url)
   end
 end
